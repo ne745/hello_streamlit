@@ -29,3 +29,8 @@ import numpy as np
 import pandas as pd
 ```
 """
+
+# グラフの表示
+df = pd.DataFrame(np.random.rand(20, 3), columns=['a', 'b', 'c'])
+st.line_chart(df)
+st.bar_chart(df)
