@@ -17,3 +17,15 @@ df = pd.DataFrame({
 st.dataframe(df.style.highlight_max(axis=0))
 # 静的なテーブル (ソートができない)
 # st.table(df.style.highlight_max(axis=0))
+
+# テキストをマークダウンで表示
+"""
+# 章
+## 節
+### 項
+```python
+import streamlit as st
+import numpy as np
+import pandas as pd
+```
+"""
