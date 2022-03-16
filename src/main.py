@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+from PIL import Image
 
 st.title("Streamlit 超入門")
 
@@ -41,3 +42,7 @@ df = pd.DataFrame(
     columns=['lat', 'lon']
 )
 st.map(df)
+
+# 画像の表示
+img = Image.open('./data/cat.jpg')
+st.image(img, caption="Cat", use_column_width=True)
