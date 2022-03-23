@@ -1,6 +1,6 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 import yfinance as yf
+import altair as alt
 
 def get_data(days, tickers):
     df = pd.DataFrame()
@@ -22,10 +22,28 @@ days =  10
 tickers = {
     'google': 'GOOGL',
     'amazon': 'AMZN',
-    'facebook': 'FB',
-    'apple': 'AAPL',
-    'microsoft': 'MSFT',
-    'netflix': 'NFLX',
+    # 'facebook': 'FB',
+    # 'apple': 'AAPL',
+    # 'microsoft': 'MSFT',
+    # 'netflix': 'NFLX',
 }
 df = get_data(days, tickers)
-print(df)
+
+companies = ['google', 'amazon']
+data = df.loc[companies]
+data = data.sort_index()
+data = data.T.reset_index()
+data = pd.melt(data, id_vars=['Date']).rename(columns={'value':'Stock Prices(USD)'})
+
+# グラフ描画
+chart = (
+    alt.Chart(data)
+    .mark_line(opacity=0.8)
+    .encode(
+        x='Date:T',
+        y=alt.Y('Stock Prices(USD):Q', stack=None),
+        color='Name:N'
+    )
+)
+
+chart.show()
