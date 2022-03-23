@@ -2,15 +2,30 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import yfinance as yf
 
-# 読み込み
-aapl = yf.Ticker('AAPL')
-days =  20
-hist = aapl.history(period=f'{days}d')
+def get_data(days, tickers):
+    df = pd.DataFrame()
+    for company in tickers.keys():
+        # 読み込み
+        ticker = yf.Ticker(tickers[company])
+        hist = ticker.history(period=f'{days}d')
+        # 整形
+        hist.index = hist.index.strftime('%d %B %Y')
+        hist = hist[['Close']]
+        hist.columns = [company]
+        hist = hist.T
+        hist.index.name = "Name"
+        # 格納
+        df = pd.concat([df, hist])
+    return df
 
-# 整形
-hist.index = hist.index.strftime('%d %B %Y')
-hist = hist[['Close']]
-hist.columns = ['apple']
-hist = hist.T
-hist.index.name = "Name"
-print(hist.head(5))
+days =  10
+tickers = {
+    'google': 'GOOGL',
+    'amazon': 'AMZN',
+    'facebook': 'FB',
+    'apple': 'AAPL',
+    'microsoft': 'MSFT',
+    'netflix': 'NFLX',
+}
+df = get_data(days, tickers)
+print(df)
