@@ -1,6 +1,20 @@
+import requests
+import functools
+
 import pandas as pd
 import yfinance as yf
 import altair as alt
+
+# timeout 設定
+# https://github.com/ranaroussi/yfinance/issues/539
+session = requests.Session()
+session.headers.update({
+    'Accept-Encoding': 'gzip, deflate'
+})
+session.request = functools.partial(session.request, timeout=1)
+yf.base._requests = session
+yf.utils._requests = session
+yf.ticker._requests = session
 
 def get_data(days, tickers):
     df = pd.DataFrame()
@@ -22,14 +36,14 @@ days =  10
 tickers = {
     'google': 'GOOGL',
     'amazon': 'AMZN',
-    # 'facebook': 'FB',
-    # 'apple': 'AAPL',
-    # 'microsoft': 'MSFT',
-    # 'netflix': 'NFLX',
+    'facebook': 'FB',
+    'apple': 'AAPL',
+    'microsoft': 'MSFT',
+    'netflix': 'NFLX',
 }
 df = get_data(days, tickers)
 
-companies = ['google', 'amazon']
+companies = ['google', 'amazon', 'facebook', 'apple', 'microsoft', 'netflix']
 data = df.loc[companies]
 data = data.sort_index()
 data = data.T.reset_index()
