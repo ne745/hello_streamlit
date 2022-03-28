@@ -28,6 +28,7 @@ remote_image_url = "https://raw.githubusercontent.com/Azure-Samples/cognitive-se
 
 print("===== Describe an image - remote =====")
 description_results = computervision_client.describe_image(remote_image_url)
+
 print("Description of remote image: ")
 if (len(description_results.captions) == 0):
     print("No description detected.")
@@ -46,4 +47,15 @@ if (len(categorize_results_remote.categories) == 0):
 else:
     for category in categorize_results_remote.categories:
         print("'{}' with confidence {:.2f}%".format(category.name, category.score * 100))
+print()
+
+print("===== Tag an image - remote =====")
+tags_result_remote = computervision_client.tag_image(remote_image_url)
+
+print("Tags in the remote image: ")
+if (len(tags_result_remote.tags) == 0):
+    print("No tags detected.")
+else:
+    for tag in tags_result_remote.tags:
+        print("'{}' with confidence {:.2f}%".format(tag.name, tag.confidence * 100))
 print()
