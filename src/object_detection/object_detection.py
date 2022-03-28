@@ -59,3 +59,17 @@ else:
     for tag in tags_result_remote.tags:
         print("'{}' with confidence {:.2f}%".format(tag.name, tag.confidence * 100))
 print()
+
+print("===== Detect Objects - remote =====")
+remote_image_url_objects = "https://raw.githubusercontent.com/Azure-Samples/cognitive-services-sample-data-files/master/ComputerVision/Images/objects.jpg"
+detect_objects_results_remote = computervision_client.detect_objects(remote_image_url_objects)
+
+print("Detecting objects in remote image:")
+if len(detect_objects_results_remote.objects) == 0:
+    print("No objects detected.")
+else:
+    for object in detect_objects_results_remote.objects:
+        print("object at location {}, {}, {}, {}".format( \
+        object.rectangle.x, object.rectangle.x + object.rectangle.w, \
+        object.rectangle.y, object.rectangle.y + object.rectangle.h))
+print()
