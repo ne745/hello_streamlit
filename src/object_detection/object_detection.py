@@ -1,6 +1,7 @@
 #　https://docs.microsoft.com/ja-jp/azure/cognitive-services/computer-vision/quickstarts-sdk/image-analysis-client-library?tabs=visual-studio&pivots=programming-language-python
 # https://github.com/Azure-Samples/cognitive-services-quickstart-code/blob/master/python/ComputerVision/ImageAnalysisQuickstart.py
 # https://westus.dev.cognitive.microsoft.com/docs/services/computer-vision-v3-2/operations/5d986960601faab4bf452005
+# https://github.com/Azure-Samples/cognitive-services-sample-data-files/blob/master/ComputerVision/Images/objects.jpg
 
 from azure.cognitiveservices.vision.computervision import ComputerVisionClient
 from azure.cognitiveservices.vision.computervision.models import OperationStatusCodes
@@ -23,6 +24,7 @@ KEY = secret['KEY']
 ENDPOINT = secret['ENDPOINT']
 
 computervision_client = ComputerVisionClient(ENDPOINT, CognitiveServicesCredentials(KEY))
+
 
 remote_image_url = "https://raw.githubusercontent.com/Azure-Samples/cognitive-services-sample-data-files/master/ComputerVision/Images/landmark.jpg"
 
@@ -89,6 +91,22 @@ if len(detect_objects_results_remote.objects) == 0:
     print("No objects detected.")
 else:
     for object in detect_objects_results_remote.objects:
+        print("object at location {}, {}, {}, {}".format( \
+        object.rectangle.x, object.rectangle.x + object.rectangle.w, \
+        object.rectangle.y, object.rectangle.y + object.rectangle.h))
+print()
+
+images_folder = os.path.join("./data")
+print("===== Detect Objects - local =====")
+local_image_path = os.path.join(images_folder, "objects.jpg")
+local_image = open(local_image_path, "rb")
+
+detect_objects_results_local = computervision_client.detect_objects_in_stream(local_image)
+print("Detecting objects in local image:")
+if len(detect_objects_results_local.objects) == 0:
+    print("No objects detected.")
+else:
+    for object in detect_objects_results_local.objects:
         print("object at location {}, {}, {}, {}".format( \
         object.rectangle.x, object.rectangle.x + object.rectangle.w, \
         object.rectangle.y, object.rectangle.y + object.rectangle.h))
