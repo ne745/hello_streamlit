@@ -1,9 +1,13 @@
-from azure.cognitiveservices.vision.computervision import ComputerVisionClient
-from charset_normalizer import detect
-from msrest.authentication import CognitiveServicesCredentials
-
 import os
 import json
+from PIL import Image
+
+from azure.cognitiveservices.vision.computervision import ComputerVisionClient
+from msrest.authentication import CognitiveServicesCredentials
+
+import streamlit as st
+
+
 
 class ImageRecognition(object):
     def __init__(self, dpth_image):
@@ -32,12 +36,24 @@ class ImageRecognition(object):
         return objects
 
 def main():
-    dpth_image = './data'
-    image_recog = ImageRecognition(dpth_image)
-    tags = image_recog.get_tags('objects.jpg')
-    print(tags)
-    objects = image_recog.detect_objects('objects.jpg')
-    print(objects)
+    st.title('物体検出アプリ')
+    uploaded_img = st.file_uploader('Choose an image...', type=['jpg', 'png'])
+
+    if uploaded_img is not None:
+        img = Image.open(uploaded_img)
+        st.image(img)
+
+
+        # 出力
+        st.markdown('**認識されたコンテンツタグ**')
+        st.markdown('> hoge, fuga, piyo')
+
+    # dpth_image = './data'
+    # image_recog = ImageRecognition(dpth_image)
+    # tags = image_recog.get_tags('objects.jpg')
+    # print(tags)
+    # objects = image_recog.detect_objects('objects.jpg')
+    # print(objects)
 
 if __name__ == '__main__':
     main()
