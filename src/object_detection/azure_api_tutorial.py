@@ -89,7 +89,7 @@ else:
         object.rectangle.y, object.rectangle.y + object.rectangle.h))
 print()
 
-images_folder = os.path.join("./data")
+images_folder = "./data"
 print("===== Detect Objects - local =====")
 local_image_path = os.path.join(images_folder, "objects.jpg")
 local_image = open(local_image_path, "rb")
