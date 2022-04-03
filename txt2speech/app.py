@@ -29,7 +29,6 @@ class Txt2Speech(object):
         self.client = texttospeech.TextToSpeechClient()
 
     def synthesize_speech(self, text, lang='日本語', gender='default'):
-
         # Set the text input to be synthesized
         synthesis_input = texttospeech.SynthesisInput(text=text)
 
@@ -51,6 +50,8 @@ class Txt2Speech(object):
             input=synthesis_input, voice=voice, audio_config=audio_config
         )
 
+        return self.response
+
     def save_audio(self, fpth_output='./data/output.mp3'):
         # The response's audio_content is binary.
         with open(fpth_output, "wb") as out:
@@ -60,15 +61,6 @@ class Txt2Speech(object):
 
 def main():
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './data/secret.json'
-
-
-    text = "こんにちは，わたしは山田太郎です"
-    lang = '日本語'
-    gender = 'default'
-
-    # txt2speech = Txt2Speech()
-    # txt2speech.synthesize_speech(text, lang, gender)
-    # txt2speech.save_audio()
 
     st.title('音声出力アプリ')
 
@@ -86,7 +78,29 @@ def main():
             content = uploaded_file.read()
             input_data = content.decode()
 
-    st.write(input_data)
+    if input_data is not None:
+        st.write('入力データ')
+        st.write(input_data)
+
+        st.markdown('### パラメータ設定')
+        st.subheader('言語と話者の性別の選択')
+        lang = st.selectbox('言語を選択してください', ('日本語', 'English'))
+        gender = st.selectbox('話者の性別を選択してください', ('default', 'male', 'female', 'neutral'))
+
+        st.markdown('### 音声合成')
+        st.write('こちらの文章で音声ファイルの生成を行いますか？')
+
+        if st.button('開始'):
+            comment = st.empty()
+            comment.write('音声出力を開始します')
+
+            txt2speech = Txt2Speech()
+            response = txt2speech.synthesize_speech(input_data, lang, gender)
+            st.audio(response.audio_content)
+            txt2speech.save_audio()
+            comment.write('完了しました')
+
+
 
 if __name__ == '__main__':
     main()
