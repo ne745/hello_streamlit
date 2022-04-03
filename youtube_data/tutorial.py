@@ -1,5 +1,9 @@
+# https://developers.google.com/youtube/v3/docs
+# https://github.com/youtube/api-samples/tree/master/python
+
 import json
 
+import pandas as pd
 from apiclient.discovery import build
 
 
@@ -16,8 +20,6 @@ youtube = build(YOUTUBE_API_SERVICE_NAME, YOUTUBE_API_VERSION, developerKey=DEVE
 q = 'Python 自動化'
 max_results = 10
 
-# Call the search.list method to retrieve results matching the specified
-# query term.
 response = youtube.search().list(
     q=q,
     part='id,snippet',
@@ -27,6 +29,12 @@ response = youtube.search().list(
 ).execute()
 
 items = response['items']
-item = items[0]
-print(item)
-print(len(item))
+items_id = []
+for item in items:
+    item_id = {}
+    item_id['video_id'] = item['id']['videoId']
+    item_id['channel_id'] = item['snippet']['channelId']
+    items_id.append(item_id)
+
+df_video = pd.DataFrame(items_id)
+print(df_video)
