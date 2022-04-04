@@ -35,7 +35,7 @@ class YouTubeData(object):
 
         self.df_video = pd.DataFrame(items_id)
 
-    def channel_subscriber(self):
+    def extract_video(self, th_subscribers=5000):
         channel_ids = self.df_video['channel_id'].unique().tolist()
 
         response = self.youtube.channels().list(
@@ -54,13 +54,13 @@ class YouTubeData(object):
                 item_id['subscribers'] = 0
             items_id.append(item_id)
 
-        self.df_subscribers = pd.DataFrame(items_id)
+        df_subscribers = pd.DataFrame(items_id)
 
-    def extract_videos(self):
-        self.df = pd.merge(left=self.df_video, right=self.df_subscribers, on='channel_id')
-        self.df_extracted = self.df[self.df['subscribers'] < 10000]
+        # 動画情報とチャンネル情報の結合
+        df = pd.merge(left=self.df_video, right=df_subscribers, on='channel_id')
+        self.df_extracted = df[df['subscribers'] < th_subscribers]
 
-    def fetch_video_info(self):
+    def get_results(self):
         video_ids = self.df_extracted['video_id'].tolist()
 
         response = self.youtube.videos().list(
@@ -76,10 +76,11 @@ class YouTubeData(object):
             item_id['title'] = item['snippet']['title']
             item_id['view_count'] = item['statistics']['viewCount']
             items_id.append(item_id)
-        self.df_video_info = pd.DataFrame(items_id)
+        df_video_info = pd.DataFrame(items_id)
 
-    def get_results(self):
-        self.df_results = pd.merge(left=self.df_extracted, right=self.df_video_info, on='video_id')
+        # 動画情報と視聴回数の結合
+        self.df_results = pd.merge(left=self.df_extracted, right=df_video_info, on='video_id')
+
         self.df_results = self.df_results.loc[:, ['video_id', 'title', 'view_count', 'subscribers', 'channel_id']]
         print(self.df_results)
 
@@ -90,10 +91,8 @@ def main():
 
     youtube_data = YouTubeData()
     youtube_data.search_video(q, max_results)
-    youtube_data.channel_subscriber()
-    youtube_data.extract_videos()
-    youtube_data.fetch_video_info()
-    youtube_data.result()
+    youtube_data.extract_video(10000)
+    youtube_data.get_results()
 
 if __name__ == '__main__':
     main()
