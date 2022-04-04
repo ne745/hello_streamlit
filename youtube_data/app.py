@@ -48,10 +48,11 @@ class YouTubeData(object):
         for item in response['items']:
             item_id = {}
             item_id['channel_id'] = item['id']
-            try:
+            if item['statistics']:
                 item_id['subscribers'] = int(item['statistics']['subscriberCount'])
-            except KeyError:
+            else:
                 item_id['subscribers'] = 0
+
             items_id.append(item_id)
 
         df_subscribers = pd.DataFrame(items_id)
@@ -91,7 +92,7 @@ def main():
 
     youtube_data = YouTubeData()
     youtube_data.search_video(q, max_results)
-    youtube_data.extract_video(10000)
+    youtube_data.extract_video(3000)
     youtube_data.get_results()
 
 if __name__ == '__main__':
