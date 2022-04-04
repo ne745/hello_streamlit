@@ -56,13 +56,27 @@ class YouTubeData(object):
 
         self.df_subscribers = pd.DataFrame(items_id)
 
-    def merge_video_info(self):
+    def extract_videos(self):
         self.df = pd.merge(left=self.df_video, right=self.df_subscribers, on='channel_id')
+        self.df_extracted = self.df[self.df['subscribers'] < 10000]
 
-    def extract_data(self):
-        self.extracted_df = self.df[self.df['subscribers'] < 5000]
-        print(self.extracted_df)
+    def fetch_video_info(self):
+        video_ids = self.df_extracted['video_id'].tolist()
 
+        response = self.youtube.videos().list(
+            id=','.join(video_ids),
+            part='snippet,statistics',
+            fields='items(id,snippet(title),statistics(viewCount))'
+        ).execute()
+
+        items_id = []
+        for item in response['items']:
+            item_id = {}
+            item_id['video_id'] = item['id']
+            item_id['title'] = item['snippet']['title']
+            item_id['view_count'] = item['statistics']['viewCount']
+            items_id.append(item_id)
+        self.df_video_info = pd.DataFrame(items_id)
 
 def main():
     q = 'Python 自動化'
@@ -71,8 +85,8 @@ def main():
     youtube_data = YouTubeData()
     youtube_data.search_video(q, max_results)
     youtube_data.channel_subscriber()
-    youtube_data.merge_video_info()
-    youtube_data.extract_data()
+    youtube_data.extract_videos()
+    youtube_data.fetch_video_info()
 
 if __name__ == '__main__':
     main()
