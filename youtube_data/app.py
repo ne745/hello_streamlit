@@ -78,6 +78,12 @@ class YouTubeData(object):
             items_id.append(item_id)
         self.df_video_info = pd.DataFrame(items_id)
 
+    def get_results(self):
+        self.df_results = pd.merge(left=self.df_extracted, right=self.df_video_info, on='video_id')
+        self.df_results = self.df_results.loc[:, ['video_id', 'title', 'view_count', 'subscribers', 'channel_id']]
+        print(self.df_results)
+
+
 def main():
     q = 'Python 自動化'
     max_results = 50
@@ -87,6 +93,7 @@ def main():
     youtube_data.channel_subscriber()
     youtube_data.extract_videos()
     youtube_data.fetch_video_info()
+    youtube_data.result()
 
 if __name__ == '__main__':
     main()
