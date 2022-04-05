@@ -3,6 +3,7 @@
 
 import json
 
+import streamlit as st
 import pandas as pd
 from apiclient.discovery import build
 
@@ -61,7 +62,7 @@ class YouTubeData(object):
         df = pd.merge(left=self.df_video, right=df_subscribers, on='channel_id')
         self.df_extracted = df[df['subscribers'] < th_subscribers]
 
-    def get_results(self):
+    def fetch_video_info(self):
         video_ids = self.df_extracted['video_id'].tolist()
 
         response = self.youtube.videos().list(
@@ -83,17 +84,48 @@ class YouTubeData(object):
         self.df_results = pd.merge(left=self.df_extracted, right=df_video_info, on='video_id')
 
         self.df_results = self.df_results.loc[:, ['video_id', 'title', 'view_count', 'subscribers', 'channel_id']]
-        print(self.df_results)
+
+    def get_results(self):
+        return self.df_results
+
+    def get_video_ids(self):
+        return self.df_results['video_id'].tolist()
 
 
 def main():
-    q = 'Python 自動化'
     max_results = 50
 
-    youtube_data = YouTubeData()
-    youtube_data.search_video(q, max_results)
-    youtube_data.extract_video(3000)
-    youtube_data.get_results()
+    st.title('YouTube分析アプリ')
+
+    st.sidebar.write('## クエリと閾値の設定')
+    st.sidebar.write('### クエリの入力')
+    query = st.sidebar.text_input('検索クエリを入力してください', '')
+    st.sidebar.write('### 閾値の設定')
+    threshold = st.sidebar.slider('登録者数の閾値', 1000, 10000, 5000, 1000)
+
+    st.write('### 選択中のパラメータ')
+    st.markdown(f"""
+    * 検索クエリ: {query}
+    * 登録者数の閾値: {threshold}
+    """)
+
+    if query:
+        # 動画の検索
+        youtube_data = YouTubeData()
+        youtube_data.search_video(query, max_results)
+        youtube_data.extract_video(threshold)
+        youtube_data.fetch_video_info()
+        results = youtube_data.get_results()
+
+        st.write('### 分析結果', results)
+
+        st.write('### 動画再生')
+        video_id = st.selectbox('動画IDを選択してください', youtube_data.get_video_ids())
+        video_field = st.empty()
+        video_field.write('こちらに動画が表示されます')
+        if st.button('ビデオ表示'):
+            video_field.video(f'https://youtu.be/{video_id}')
+
 
 if __name__ == '__main__':
     main()
