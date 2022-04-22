@@ -2,6 +2,8 @@ import requests
 
 from bs4 import BeautifulSoup
 import pandas as pd
+from google.oauth2.service_account import Credentials
+import gspread
 
 def get_data_udemy():
     url = 'https://scraping-for-beginner.herokuapp.com/udemy'
@@ -37,5 +39,19 @@ def get_data_ec():
     df = pd.DataFrame(data)
     return df
 
-print(get_data_udemy())
-print(get_data_ec())
+# print(get_data_udemy())
+# print(get_data_ec())
+
+# https://docs.gspread.org/en/latest/oauth2.html
+
+scopes = [
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/drive'
+]
+
+credentials = Credentials.from_service_account_file(
+    './data/service_account.json',
+    scopes=scopes
+)
+
+gc = gspread.authorize(credentials)
