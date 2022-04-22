@@ -21,9 +21,12 @@ soup = BeautifulSoup(respons.text, 'html.parser')
 item_list = soup.find('ul', {'id': 'itemList'})
 items = item_list.find_all('li')
 
+data_ec = []
 for item in items:
-    title = item.find('p', {'class': 'items-grid_itemTitleText_5a0255a1'}).text
+    datum_ec = {}
+    datum_ec['title'] = item.find('p', {'class': 'items-grid_itemTitleText_5a0255a1'}).text
     price = item.find('p', {'class': 'items-grid_price_5a0255a1'}).text
-    price = int(price.replace('¥', '').replace(',', '').replace(' ', ''))
-    link = item.find('a')['href']
-    is_stock = '在庫あり' if item.find('p', {'class': 'items-grid_soldOut_5a0255a1'}) is None else '在庫なし'
+    datum_ec['price'] = int(price.replace('¥', '').replace(',', '').replace(' ', ''))
+    datum_ec['link'] = item.find('a')['href']
+    datum_ec['is_stock'] = '在庫あり' if item.find('p', {'class': 'items-grid_soldOut_5a0255a1'}) is None else '在庫なし'
+    data_ec.append(datum_ec)
