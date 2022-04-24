@@ -1,9 +1,11 @@
 import requests
+import datetime
 
 from bs4 import BeautifulSoup
 import pandas as pd
 from google.oauth2.service_account import Credentials
 import gspread
+from gspread_dataframe import set_with_dataframe
 
 def get_data_udemy():
     url = 'https://scraping-for-beginner.herokuapp.com/udemy'
@@ -62,4 +64,10 @@ sh = gc.open_by_key(SP_SHEET_KEY)
 worksheet = sh.worksheet(SP_SHEET)
 data = worksheet.get_all_values()
 df = pd.DataFrame(data[1:], columns=data[0])
-print(df.head())
+
+#　今日のデータを追加
+data_udemy = get_data_udemy()
+today = datetime.date.today().strftime('%Y/%m/%d')
+data_udemy['date'] = today
+df = df.append(data_udemy, ignore_index=True)
+set_with_dataframe(worksheet, df, row=1, col=1)
