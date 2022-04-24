@@ -3,9 +3,13 @@ import datetime
 
 from bs4 import BeautifulSoup
 import pandas as pd
+
 from google.oauth2.service_account import Credentials
 import gspread
 from gspread_dataframe import set_with_dataframe
+
+import altair as alt
+from altair_saver import save
 
 def get_data_udemy():
     url = 'https://scraping-for-beginner.herokuapp.com/udemy'
@@ -66,8 +70,44 @@ data = worksheet.get_all_values()
 df = pd.DataFrame(data[1:], columns=data[0])
 
 #　今日のデータを追加
-data_udemy = get_data_udemy()
-today = datetime.date.today().strftime('%Y/%m/%d')
-data_udemy['date'] = today
-df = df.append(data_udemy, ignore_index=True)
-set_with_dataframe(worksheet, df, row=1, col=1)
+# data_udemy = get_data_udemy()
+# today = datetime.date.today().strftime('%Y/%m/%d')
+# data_udemy['date'] = today
+# df = df.append(data_udemy, ignore_index=True)
+# set_with_dataframe(worksheet, df, row=1, col=1)
+
+# グラフ描画
+# データの再取得
+data = worksheet.get_all_values()
+df_udemy = pd.DataFrame(data[1:], columns=data[0])
+df_udemy = df_udemy.astype({'n_subscriber': int, 'n_review': int})
+
+base = alt.Chart(df_udemy).encode(
+    alt.X('date:T', axis=alt.Axis(title=None))
+)
+line1 = base.mark_line(stroke='#57A44C').encode(
+    alt.Y(
+        'n_subscriber',
+        axis=alt.Axis(title='受講生数', titleColor='#57A44C'),
+        scale=alt.Scale(
+            domain=[
+                df_udemy['n_subscriber'].min() - 10,
+                df_udemy['n_subscriber'].max() + 10
+            ]
+        )
+    )
+)
+line2 = base.mark_line(stroke='#5276A7').encode(
+    alt.Y(
+        'n_review',
+        axis=alt.Axis(title='レビュー数', titleColor='#5276A7'),
+        scale=alt.Scale(
+            domain=[
+                df_udemy['n_review'].min() - 10,
+                df_udemy['n_review'].max() + 10
+            ]
+        )
+        )
+)
+chart = alt.layer(line1, line2).resolve_scale(y='independent')
+save(chart, './data/chart.html')
