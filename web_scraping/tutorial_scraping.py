@@ -55,3 +55,11 @@ credentials = Credentials.from_service_account_file(
 )
 
 gc = gspread.authorize(credentials)
+
+SP_SHEET_KEY = '1iRmrAm4_560L-zqv18-4bsGK1LwgjgTBfydWddCegCY'
+SP_SHEET = 'db'
+sh = gc.open_by_key(SP_SHEET_KEY)
+worksheet = sh.worksheet(SP_SHEET)
+data = worksheet.get_all_values()
+df = pd.DataFrame(data[1:], columns=data[0])
+print(df.head())
