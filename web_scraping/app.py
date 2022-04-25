@@ -6,10 +6,11 @@ import pandas as pd
 from google.oauth2.service_account import Credentials
 import gspread
 
-import altair as alt
-from altair_saver import save
+import streamlit as st
 
-def get_data_ec():
+import altair as alt
+
+def fetch_data_ec():
     url = 'https://scraping.official.ec/'
     respons = requests.get(url)
     soup = BeautifulSoup(respons.text, 'html.parser')
@@ -55,8 +56,7 @@ def fetch_data():
     df = df.astype({'n_subscriber': int, 'n_review': int})
     return df
 
-def main():
-    df_udemy = fetch_data()
+def draw_graph(df_udemy):
     # グラフ描画
     base = alt.Chart(df_udemy).encode(
         alt.X('date:T', axis=alt.Axis(title=None))
@@ -86,7 +86,20 @@ def main():
             )
     )
     chart = alt.layer(line1, line2).resolve_scale(y='independent')
-    save(chart, './data/chart.html')
+    return chart
+
+def main():
+    df_udemy = fetch_data()
+    chart = draw_graph(df_udemy)
+
+    df_ec = fetch_data_ec()
+
+    st.title('ウェブスクレイピング活用アプリ')
+
+    st.write('## Udemy 情報')
+    st.altair_chart(chart, use_container_width=True)
+
+    st.write('## EC 在庫情報', df_ec)
 
 if __name__ == '__main__':
     main()
